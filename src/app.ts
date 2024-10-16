@@ -10,6 +10,4 @@ ctx.clearRect(0, 0, 500, 500);
 ctx.strokeStyle = '#222';
 ctx.fillStyle = '#444';
 
-ctx.moveTo(100, 100);
-ctx.lineTo(200, 200);
-ctx.stroke();
+const points = [new Point(100, 100), new Point(200, 120), new Point(150, 300), new Point(400, 40)];

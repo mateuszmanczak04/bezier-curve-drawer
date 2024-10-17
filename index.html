@@ -7,7 +7,20 @@
 	</head>
 	<body>
 		<h1>Bezier curve</h1>
-		<canvas id="canvas" width="500" height="500"></canvas>
+		<div id="wrapper" style="position: relative">
+			<canvas id="canvas" width="500" height="500" style="background-color: #ddd"></canvas>
+			<div
+				id="points"
+				style="
+					position: absolute;
+					left: 0;
+					top: 0;
+					width: 500px;
+					height: 500px;
+					z-index: 10;
+				"
+			></div>
+		</div>
 		<script src="build/app.js"></script>
 	</body>
 </html>

@@ -1,46 +1,101 @@
 var Point = (function () {
-    function Point(_x, _y, _ctx) {
-        this._x = _x;
-        this._y = _y;
-        this._ctx = _ctx;
-        this._radiusX = 5;
-        this._radiusY = 5;
+    function Point(_x, _y) {
+        this.x = _x;
+        this.y = _y;
     }
-    Object.defineProperty(Point.prototype, "x", {
-        get: function () {
-            return this._x;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Point.prototype, "y", {
-        get: function () {
-            return this._y;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Point.prototype.draw = function () {
-        this._ctx.ellipse(this._x, this._y, this._radiusX, this._radiusY, Math.PI, 0, 2 * Math.PI);
-        this._ctx.fill();
-        this._ctx.closePath();
-    };
     return Point;
 }());
 var canvas = document.querySelector('#canvas');
-canvas.style.backgroundColor = '#ddd';
 var ctx = canvas.getContext('2d');
 if (!ctx)
     throw new Error('Canvas context not found!');
-ctx.clearRect(0, 0, 500, 500);
-ctx.strokeStyle = '#222';
-ctx.fillStyle = '#444';
-var points = [
-    new Point(100, 100, ctx),
-    new Point(300, 120, ctx),
-    new Point(150, 300, ctx),
-    new Point(400, 400, ctx),
-];
-points.forEach(function (point) { return point.draw(); });
-var A = points[0], B = points[1], C = points[2], D = points[3];
+var points = [new Point(100, 100), new Point(400, 20), new Point(50, 480), new Point(400, 400)];
+var clearCanvas = function () {
+    console.log('clearCanvas');
+    ctx.reset();
+};
+var drawCurve = function (A, B, C, D) {
+    console.log('drawCurve');
+    ctx.moveTo(A.x, A.y);
+    for (var t = 0; t <= 1; t += 0.001) {
+        var x = A.x * Math.pow((1 - t), 3) +
+            3 * B.x * t * Math.pow((1 - t), 2) +
+            3 * C.x * Math.pow(t, 2) * (1 - t) +
+            D.x * Math.pow(t, 3);
+        var y = A.y * Math.pow((1 - t), 3) +
+            3 * B.y * t * Math.pow((1 - t), 2) +
+            3 * C.y * Math.pow(t, 2) * (1 - t) +
+            D.y * Math.pow(t, 3);
+        ctx.moveTo(x, y);
+        ctx.ellipse(x, y, 1, 1, Math.PI, 0, Math.PI * 2);
+        ctx.fill();
+    }
+};
+var drawHelperLines = function (A, B, C, D) {
+    console.log('drawHelperLines');
+    ctx.strokeStyle = '#aaa';
+    ctx.moveTo(A.x, A.y);
+    ctx.lineTo(B.x, B.y);
+    ctx.stroke();
+    ctx.moveTo(C.x, C.y);
+    ctx.lineTo(D.x, D.y);
+    ctx.stroke();
+};
+var drawPoints = function (points) {
+    console.log('drawPoints');
+    ctx.fillStyle = '#444';
+    points.forEach(function (point) {
+        ctx.moveTo(point.x, point.y);
+        ctx.ellipse(point.x, point.y, 8, 8, Math.PI, 0, Math.PI * 2);
+    });
+    ctx.fill();
+};
+var repaint = function (points) {
+    console.table(points);
+    clearCanvas();
+    drawCurve(points[0], points[1], points[2], points[3]);
+    drawHelperLines(points[0], points[1], points[2], points[3]);
+    drawPoints(points);
+};
+var wrapper = document.getElementById('wrapper');
+var wrapperRect = wrapper.getBoundingClientRect();
+var wrapperX = wrapperRect.left;
+var wrapperY = wrapperRect.top;
+var pointsWrapper = document.getElementById('points');
+var currentPointIndex = -1;
+var recreateDOMPoints = function (points) {
+    pointsWrapper.innerHTML = null;
+    points.forEach(function (p, index) {
+        var point = document.createElement('div');
+        point.style.position = 'absolute';
+        point.style.width = '16px';
+        point.style.height = '16px';
+        point.style.left = "".concat(p.x - 8, "px");
+        point.style.top = "".concat(p.y - 8, "px");
+        point.style.backgroundColor = 'red';
+        point.style.borderRadius = '50%';
+        point.addEventListener('mousedown', function () {
+            currentPointIndex = index;
+        });
+        pointsWrapper.appendChild(point);
+    });
+};
+var registerMouseEvents = function () {
+    window.addEventListener('mouseup', function () {
+        if (currentPointIndex === -1)
+            return;
+        currentPointIndex = -1;
+        repaint(points);
+        recreateDOMPoints(points);
+    });
+    window.addEventListener('mousemove', function (e) {
+        if (currentPointIndex === -1)
+            return;
+        points[currentPointIndex].x = e.clientX - wrapperX;
+        points[currentPointIndex].y = e.clientY - wrapperY;
+    });
+};
+repaint(points);
+recreateDOMPoints(points);
+registerMouseEvents();
 //# sourceMappingURL=app.js.map

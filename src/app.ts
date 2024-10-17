@@ -11,7 +11,8 @@ class Point {
 const CANVAS_WIDTH = 1200;
 const CANVAS_HEIGHT = 800;
 const POINT_RADIUS = 8;
-const DRAWING_PRECISION = 0.01;
+
+let drawingPrecision = 0.01;
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement;
 canvas.width = CANVAS_WIDTH;
@@ -82,7 +83,7 @@ const drawCurve = (A: Point, B: Point, C: Point, D: Point) => {
 	ctx.moveTo(A.x, A.y);
 	ctx.beginPath();
 
-	for (let t = 0; t <= 1; t += DRAWING_PRECISION) {
+	for (let t = 0; t <= 1; t += drawingPrecision) {
 		const x =
 			A.x * (1 - t) ** 3 +
 			3 * B.x * t * (1 - t) ** 2 +
@@ -94,9 +95,8 @@ const drawCurve = (A: Point, B: Point, C: Point, D: Point) => {
 			3 * C.y * t ** 2 * (1 - t) +
 			D.y * t ** 3;
 		ctx.lineTo(x, y);
-		// ctx.ellipse(x, y, 1, 1, Math.PI, 0, Math.PI * 2);
-		// ctx.fill();
 	}
+	ctx.lineTo(D.x, D.y);
 	ctx.strokeStyle = '#333';
 	ctx.lineWidth = 3;
 	ctx.stroke();
@@ -154,5 +154,16 @@ const registerMouseEvents = () => {
 	});
 };
 
+// Allow user for selecting precision
+const precisionInputElement = document.getElementById('precision-input') as HTMLInputElement;
+precisionInputElement.value = drawingPrecision.toString();
+const precisionSubmitButton = document.getElementById('precision-button') as HTMLButtonElement;
+
+precisionSubmitButton.addEventListener('click', () => {
+	drawingPrecision = parseFloat(precisionInputElement.value || '0.1');
+	repaint(points);
+});
+
+// Start app
 repaint(points);
 registerMouseEvents();

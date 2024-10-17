@@ -8,7 +8,7 @@ var Point = (function () {
 var CANVAS_WIDTH = 1200;
 var CANVAS_HEIGHT = 800;
 var POINT_RADIUS = 8;
-var DRAWING_PRECISION = 0.01;
+var drawingPrecision = 0.01;
 var canvas = document.querySelector('#canvas');
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
@@ -57,7 +57,7 @@ var clearCanvas = function () {
 var drawCurve = function (A, B, C, D) {
     ctx.moveTo(A.x, A.y);
     ctx.beginPath();
-    for (var t = 0; t <= 1; t += DRAWING_PRECISION) {
+    for (var t = 0; t <= 1; t += drawingPrecision) {
         var x = A.x * Math.pow((1 - t), 3) +
             3 * B.x * t * Math.pow((1 - t), 2) +
             3 * C.x * Math.pow(t, 2) * (1 - t) +
@@ -68,6 +68,7 @@ var drawCurve = function (A, B, C, D) {
             D.y * Math.pow(t, 3);
         ctx.lineTo(x, y);
     }
+    ctx.lineTo(D.x, D.y);
     ctx.strokeStyle = '#333';
     ctx.lineWidth = 3;
     ctx.stroke();
@@ -116,6 +117,13 @@ var registerMouseEvents = function () {
         repaint(points);
     });
 };
+var precisionInputElement = document.getElementById('precision-input');
+precisionInputElement.value = drawingPrecision.toString();
+var precisionSubmitButton = document.getElementById('precision-button');
+precisionSubmitButton.addEventListener('click', function () {
+    drawingPrecision = parseFloat(precisionInputElement.value || '0.1');
+    repaint(points);
+});
 repaint(points);
 registerMouseEvents();
 //# sourceMappingURL=app.js.map

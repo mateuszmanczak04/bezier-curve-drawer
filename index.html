@@ -4,22 +4,13 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Document</title>
+		<link rel="stylesheet" href="style.css" />
 	</head>
 	<body>
 		<h1>Bezier curve</h1>
-		<div id="wrapper" style="position: relative">
-			<canvas id="canvas" width="500" height="500" style="background-color: #ddd"></canvas>
-			<div
-				id="points"
-				style="
-					position: absolute;
-					left: 0;
-					top: 0;
-					width: 500px;
-					height: 500px;
-					z-index: 10;
-				"
-			></div>
+		<div id="wrapper">
+			<canvas id="canvas" width="500" height="500"></canvas>
+			<div id="points-wrapper"></div>
 		</div>
 		<script src="build/app.js"></script>
 	</body>

@@ -5,13 +5,41 @@ var Point = (function () {
     }
     return Point;
 }());
+var CANVAS_WIDTH = 800;
+var CANVAS_HEIGHT = 800;
+var POINT_RADIUS = 8;
 var canvas = document.querySelector('#canvas');
+canvas.width = CANVAS_WIDTH;
+canvas.height = CANVAS_HEIGHT;
+canvas.style.backgroundColor = '#DDD';
+var wrapper = document.getElementById('wrapper');
+var wrapperRect = wrapper.getBoundingClientRect();
+var wrapperX = wrapperRect.left;
+var wrapperY = wrapperRect.top;
+var pointsWrapper = document.getElementById('points-wrapper');
+pointsWrapper.style.width = "".concat(CANVAS_WIDTH, "px");
+pointsWrapper.style.height = "".concat(CANVAS_HEIGHT, "px");
+var points = [new Point(100, 100), new Point(400, 20), new Point(50, 480), new Point(400, 400)];
+var pointsElements = points.map(function (point, index) {
+    var pointElement = document.createElement('div');
+    pointElement.classList.add('point');
+    pointElement.style.left = "".concat(point.x - 8, "px");
+    pointElement.style.top = "".concat(point.y - 8, "px");
+    pointElement.style.width = "".concat(2 * POINT_RADIUS, "px");
+    pointElement.style.height = "".concat(2 * POINT_RADIUS, "px");
+    pointElement.addEventListener('mousedown', function () {
+        currentPointIndex = index;
+    });
+    return pointElement;
+});
+pointsElements.forEach(function (pointElement) {
+    pointsWrapper.appendChild(pointElement);
+});
+var currentPointIndex = -1;
 var ctx = canvas.getContext('2d');
 if (!ctx)
     throw new Error('Canvas context not found!');
-var points = [new Point(100, 100), new Point(400, 20), new Point(50, 480), new Point(400, 400)];
 var clearCanvas = function () {
-    console.log('clearCanvas');
     ctx.reset();
 };
 var drawCurve = function (A, B, C, D) {
@@ -32,7 +60,6 @@ var drawCurve = function (A, B, C, D) {
     }
 };
 var drawHelperLines = function (A, B, C, D) {
-    console.log('drawHelperLines');
     ctx.strokeStyle = '#aaa';
     ctx.moveTo(A.x, A.y);
     ctx.lineTo(B.x, B.y);
@@ -42,43 +69,18 @@ var drawHelperLines = function (A, B, C, D) {
     ctx.stroke();
 };
 var drawPoints = function (points) {
-    console.log('drawPoints');
     ctx.fillStyle = '#444';
     points.forEach(function (point) {
         ctx.moveTo(point.x, point.y);
-        ctx.ellipse(point.x, point.y, 8, 8, Math.PI, 0, Math.PI * 2);
+        ctx.ellipse(point.x, point.y, POINT_RADIUS, POINT_RADIUS, Math.PI, 0, Math.PI * 2);
     });
     ctx.fill();
 };
 var repaint = function (points) {
-    console.table(points);
     clearCanvas();
     drawCurve(points[0], points[1], points[2], points[3]);
     drawHelperLines(points[0], points[1], points[2], points[3]);
     drawPoints(points);
-};
-var wrapper = document.getElementById('wrapper');
-var wrapperRect = wrapper.getBoundingClientRect();
-var wrapperX = wrapperRect.left;
-var wrapperY = wrapperRect.top;
-var pointsWrapper = document.getElementById('points');
-var currentPointIndex = -1;
-var recreateDOMPoints = function (points) {
-    pointsWrapper.innerHTML = null;
-    points.forEach(function (p, index) {
-        var point = document.createElement('div');
-        point.style.position = 'absolute';
-        point.style.width = '16px';
-        point.style.height = '16px';
-        point.style.left = "".concat(p.x - 8, "px");
-        point.style.top = "".concat(p.y - 8, "px");
-        point.style.backgroundColor = 'red';
-        point.style.borderRadius = '50%';
-        point.addEventListener('mousedown', function () {
-            currentPointIndex = index;
-        });
-        pointsWrapper.appendChild(point);
-    });
 };
 var registerMouseEvents = function () {
     window.addEventListener('mouseup', function () {
@@ -86,16 +88,16 @@ var registerMouseEvents = function () {
             return;
         currentPointIndex = -1;
         repaint(points);
-        recreateDOMPoints(points);
     });
     window.addEventListener('mousemove', function (e) {
         if (currentPointIndex === -1)
             return;
         points[currentPointIndex].x = e.clientX - wrapperX;
         points[currentPointIndex].y = e.clientY - wrapperY;
+        pointsElements[currentPointIndex].style.left = "".concat(e.clientX - wrapperX - POINT_RADIUS, "px");
+        pointsElements[currentPointIndex].style.top = "".concat(e.clientY - wrapperY - POINT_RADIUS, "px");
     });
 };
 repaint(points);
-recreateDOMPoints(points);
 registerMouseEvents();
 //# sourceMappingURL=app.js.map

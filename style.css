@@ -1,0 +1,16 @@
+#wrapper {
+	position: relative;
+}
+
+#points-wrapper {
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 10;
+}
+
+.point {
+	position: absolute;
+	background-color: red;
+	border-radius: 50%;
+}

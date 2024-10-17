@@ -11,6 +11,7 @@ class Point {
 const CANVAS_WIDTH = 1200;
 const CANVAS_HEIGHT = 800;
 const POINT_RADIUS = 8;
+const DRAWING_PRECISION = 0.01;
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement;
 canvas.width = CANVAS_WIDTH;
@@ -79,7 +80,9 @@ const clearCanvas = () => {
 // Bezier curve joining A-D
 const drawCurve = (A: Point, B: Point, C: Point, D: Point) => {
 	ctx.moveTo(A.x, A.y);
-	for (let t = 0; t <= 1; t += 0.001) {
+	ctx.beginPath();
+
+	for (let t = 0; t <= 1; t += DRAWING_PRECISION) {
 		const x =
 			A.x * (1 - t) ** 3 +
 			3 * B.x * t * (1 - t) ** 2 +
@@ -90,15 +93,20 @@ const drawCurve = (A: Point, B: Point, C: Point, D: Point) => {
 			3 * B.y * t * (1 - t) ** 2 +
 			3 * C.y * t ** 2 * (1 - t) +
 			D.y * t ** 3;
-		ctx.moveTo(x, y);
-		ctx.ellipse(x, y, 1, 1, Math.PI, 0, Math.PI * 2);
-		ctx.fill();
+		ctx.lineTo(x, y);
+		// ctx.ellipse(x, y, 1, 1, Math.PI, 0, Math.PI * 2);
+		// ctx.fill();
 	}
+	ctx.strokeStyle = '#333';
+	ctx.lineWidth = 3;
+	ctx.stroke();
 };
 
 // Lines between A-B and C-D
 const drawHelperLines = (A: Point, B: Point, C: Point, D: Point) => {
+	ctx.beginPath();
 	ctx.strokeStyle = '#aaa';
+	ctx.lineWidth = 1;
 	ctx.moveTo(A.x, A.y);
 	ctx.lineTo(B.x, B.y);
 	ctx.stroke();
@@ -109,6 +117,7 @@ const drawHelperLines = (A: Point, B: Point, C: Point, D: Point) => {
 
 // Draws points circles
 const drawPoints = (points: Point[]) => {
+	ctx.beginPath();
 	ctx.fillStyle = '#444';
 	points.forEach((point) => {
 		ctx.moveTo(point.x, point.y);
@@ -121,8 +130,8 @@ const drawPoints = (points: Point[]) => {
 const repaint = (points: Point[]) => {
 	clearCanvas();
 	for (let i = 0; i < points.length - 1; i += 3) {
-		drawCurve(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
 		drawHelperLines(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
+		drawCurve(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
 	}
 	drawPoints(points);
 };
@@ -132,7 +141,6 @@ const registerMouseEvents = () => {
 	window.addEventListener('mouseup', () => {
 		if (currentPointIndex === -1) return;
 		currentPointIndex = -1;
-		repaint(points);
 	});
 
 	// Fired when dragging a point to another position
@@ -142,6 +150,7 @@ const registerMouseEvents = () => {
 		points[currentPointIndex].y = e.clientY - wrapperY;
 		pointsElements[currentPointIndex].style.left = `${e.clientX - wrapperX - POINT_RADIUS}px`;
 		pointsElements[currentPointIndex].style.top = `${e.clientY - wrapperY - POINT_RADIUS}px`;
+		repaint(points);
 	});
 };
 

@@ -8,6 +8,7 @@ var Point = (function () {
 var CANVAS_WIDTH = 1200;
 var CANVAS_HEIGHT = 800;
 var POINT_RADIUS = 8;
+var DRAWING_PRECISION = 0.01;
 var canvas = document.querySelector('#canvas');
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
@@ -55,7 +56,8 @@ var clearCanvas = function () {
 };
 var drawCurve = function (A, B, C, D) {
     ctx.moveTo(A.x, A.y);
-    for (var t = 0; t <= 1; t += 0.001) {
+    ctx.beginPath();
+    for (var t = 0; t <= 1; t += DRAWING_PRECISION) {
         var x = A.x * Math.pow((1 - t), 3) +
             3 * B.x * t * Math.pow((1 - t), 2) +
             3 * C.x * Math.pow(t, 2) * (1 - t) +
@@ -64,13 +66,16 @@ var drawCurve = function (A, B, C, D) {
             3 * B.y * t * Math.pow((1 - t), 2) +
             3 * C.y * Math.pow(t, 2) * (1 - t) +
             D.y * Math.pow(t, 3);
-        ctx.moveTo(x, y);
-        ctx.ellipse(x, y, 1, 1, Math.PI, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.lineTo(x, y);
     }
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 3;
+    ctx.stroke();
 };
 var drawHelperLines = function (A, B, C, D) {
+    ctx.beginPath();
     ctx.strokeStyle = '#aaa';
+    ctx.lineWidth = 1;
     ctx.moveTo(A.x, A.y);
     ctx.lineTo(B.x, B.y);
     ctx.stroke();
@@ -79,6 +84,7 @@ var drawHelperLines = function (A, B, C, D) {
     ctx.stroke();
 };
 var drawPoints = function (points) {
+    ctx.beginPath();
     ctx.fillStyle = '#444';
     points.forEach(function (point) {
         ctx.moveTo(point.x, point.y);
@@ -89,8 +95,8 @@ var drawPoints = function (points) {
 var repaint = function (points) {
     clearCanvas();
     for (var i = 0; i < points.length - 1; i += 3) {
-        drawCurve(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
         drawHelperLines(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
+        drawCurve(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
     }
     drawPoints(points);
 };
@@ -99,7 +105,6 @@ var registerMouseEvents = function () {
         if (currentPointIndex === -1)
             return;
         currentPointIndex = -1;
-        repaint(points);
     });
     window.addEventListener('mousemove', function (e) {
         if (currentPointIndex === -1)
@@ -108,6 +113,7 @@ var registerMouseEvents = function () {
         points[currentPointIndex].y = e.clientY - wrapperY;
         pointsElements[currentPointIndex].style.left = "".concat(e.clientX - wrapperX - POINT_RADIUS, "px");
         pointsElements[currentPointIndex].style.top = "".concat(e.clientY - wrapperY - POINT_RADIUS, "px");
+        repaint(points);
     });
 };
 repaint(points);

@@ -8,7 +8,7 @@ class Point {
 }
 
 // Setup consts and DOM elements
-const CANVAS_WIDTH = 800;
+const CANVAS_WIDTH = 1200;
 const CANVAS_HEIGHT = 800;
 const POINT_RADIUS = 8;
 
@@ -30,7 +30,18 @@ pointsWrapper.style.width = `${CANVAS_WIDTH}px`;
 pointsWrapper.style.height = `${CANVAS_HEIGHT}px`;
 
 // Array of coordinates of points, it changes on every point drag
-const points = [new Point(100, 100), new Point(400, 20), new Point(50, 480), new Point(400, 400)];
+const points = [
+	new Point(100, 100), // Starting point
+	new Point(400, 20),
+	new Point(50, 480),
+	new Point(400, 400), // Common point
+	new Point(800, 300),
+	new Point(500, 100),
+	new Point(800, 200), // Common point
+	new Point(1000, 500),
+	new Point(900, 650),
+	new Point(500, 700), // End point
+];
 
 // Array of points as DOM elements
 const pointsElements: HTMLDivElement[] = points.map((point, index) => {
@@ -67,7 +78,6 @@ const clearCanvas = () => {
 
 // Bezier curve joining A-D
 const drawCurve = (A: Point, B: Point, C: Point, D: Point) => {
-	console.log('drawCurve');
 	ctx.moveTo(A.x, A.y);
 	for (let t = 0; t <= 1; t += 0.001) {
 		const x =
@@ -110,8 +120,10 @@ const drawPoints = (points: Point[]) => {
 // Clears canvas and paints all we need to see
 const repaint = (points: Point[]) => {
 	clearCanvas();
-	drawCurve(points[0], points[1], points[2], points[3]);
-	drawHelperLines(points[0], points[1], points[2], points[3]);
+	for (let i = 0; i < points.length - 1; i += 3) {
+		drawCurve(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
+		drawHelperLines(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
+	}
 	drawPoints(points);
 };
 

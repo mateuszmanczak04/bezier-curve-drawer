@@ -5,7 +5,7 @@ var Point = (function () {
     }
     return Point;
 }());
-var CANVAS_WIDTH = 800;
+var CANVAS_WIDTH = 1200;
 var CANVAS_HEIGHT = 800;
 var POINT_RADIUS = 8;
 var canvas = document.querySelector('#canvas');
@@ -19,7 +19,18 @@ var wrapperY = wrapperRect.top;
 var pointsWrapper = document.getElementById('points-wrapper');
 pointsWrapper.style.width = "".concat(CANVAS_WIDTH, "px");
 pointsWrapper.style.height = "".concat(CANVAS_HEIGHT, "px");
-var points = [new Point(100, 100), new Point(400, 20), new Point(50, 480), new Point(400, 400)];
+var points = [
+    new Point(100, 100),
+    new Point(400, 20),
+    new Point(50, 480),
+    new Point(400, 400),
+    new Point(800, 300),
+    new Point(500, 100),
+    new Point(800, 200),
+    new Point(1000, 500),
+    new Point(900, 650),
+    new Point(500, 700),
+];
 var pointsElements = points.map(function (point, index) {
     var pointElement = document.createElement('div');
     pointElement.classList.add('point');
@@ -43,7 +54,6 @@ var clearCanvas = function () {
     ctx.reset();
 };
 var drawCurve = function (A, B, C, D) {
-    console.log('drawCurve');
     ctx.moveTo(A.x, A.y);
     for (var t = 0; t <= 1; t += 0.001) {
         var x = A.x * Math.pow((1 - t), 3) +
@@ -78,8 +88,10 @@ var drawPoints = function (points) {
 };
 var repaint = function (points) {
     clearCanvas();
-    drawCurve(points[0], points[1], points[2], points[3]);
-    drawHelperLines(points[0], points[1], points[2], points[3]);
+    for (var i = 0; i < points.length - 1; i += 3) {
+        drawCurve(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
+        drawHelperLines(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
+    }
     drawPoints(points);
 };
 var registerMouseEvents = function () {

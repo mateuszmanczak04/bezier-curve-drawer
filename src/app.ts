@@ -167,17 +167,11 @@ class Chart {
 		ctx.strokeStyle = this.helperLineColor;
 		ctx.lineWidth = this.helperLineWidth;
 		ctx.beginPath();
-		ctx.moveTo(points[0].x, points[0].x);
 		for (let i = 0; i < points.length - 1; i++) {
+			ctx.moveTo(points[i].x, points[i].y);
 			ctx.lineTo(points[i + 1].x, points[i + 1].y);
 		}
 		ctx.stroke();
-		// ctx.moveTo(points[0].x, points[0].y);
-		// ctx.lineTo(points[1].x, points[1].y);
-		// ctx.stroke();
-		// ctx.moveTo(points[2].x, points[2].y);
-		// ctx.lineTo(points[3].x, points[3].y);
-		// ctx.stroke();
 	}
 
 	/**
@@ -257,5 +251,16 @@ const chart = new Chart('canvas');
 chart.setPoints(points);
 chart.setDegree(5);
 chart.repaint();
+
+// let i =0;
+// setInterval(() => {
+// 	chart.setDegree(i);
+// 	chart.repaint();
+// 	if (i === points.length - 1) {
+// 		i = 0;
+// 	} else {
+// 		i += 1;
+// 	}
+// }, 500)
 
 registerMouseEvents();

@@ -79,8 +79,8 @@ var Chart = (function () {
         ctx.strokeStyle = this.helperLineColor;
         ctx.lineWidth = this.helperLineWidth;
         ctx.beginPath();
-        ctx.moveTo(points[0].x, points[0].x);
         for (var i = 0; i < points.length - 1; i++) {
+            ctx.moveTo(points[i].x, points[i].y);
             ctx.lineTo(points[i + 1].x, points[i + 1].y);
         }
         ctx.stroke();

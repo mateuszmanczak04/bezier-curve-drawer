@@ -151,7 +151,7 @@ class Chart {
 		if (!this.canvas) return;
 		this.canvas.addEventListener('click', (e: MouseEvent) => {
 			if (!this.isDrawingPointsEnabled) return;
-			this.addPoint(e.clientX, e.clientY)
+			this.addPoint(e.clientX, e.clientY);
 			this.drawPoints();
 		});
 	}
@@ -187,10 +187,11 @@ class Chart {
 	}
 
 	/**
-	 * Resets state of the canvas.
+	 * Resets state of the canvas and removes points.
 	 */
-	private clearCanvas() {
+	reset() {
 		this.ctx.reset();
+		this.points = [];
 	}
 
 	/**
@@ -267,7 +268,6 @@ class Chart {
 	 */
 	repaint() {
 		const points = this.points;
-		this.clearCanvas();
 		for (let i = 0; i < points.length - 1; i += this.curveDegree) {
 			const pointsToPass = points.slice(i, i + this.curveDegree + 1);
 
@@ -298,4 +298,9 @@ drawingPointsCheckbox.addEventListener('change', (e: Event) => {
 const drawButton = document.getElementById('draw-button');
 drawButton.addEventListener('click', (e) => {
 	chart.repaint();
-})
+});
+
+const resetButton = document.getElementById('reset-button');
+resetButton.addEventListener('click', (e) => {
+	chart.reset();
+});

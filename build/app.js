@@ -96,8 +96,9 @@ var Chart = (function () {
     Chart.prototype.addPoint = function (x, y) {
         this.points.push(new Point(x, y));
     };
-    Chart.prototype.clearCanvas = function () {
+    Chart.prototype.reset = function () {
         this.ctx.reset();
+        this.points = [];
     };
     Chart.prototype.drawCurve = function (points) {
         var _this = this;
@@ -146,7 +147,6 @@ var Chart = (function () {
     };
     Chart.prototype.repaint = function () {
         var points = this.points;
-        this.clearCanvas();
         for (var i = 0; i < points.length - 1; i += this.curveDegree) {
             var pointsToPass = points.slice(i, i + this.curveDegree + 1);
             if (pointsToPass.length < this.curveDegree + 1)
@@ -173,5 +173,9 @@ drawingPointsCheckbox.addEventListener('change', function (e) {
 var drawButton = document.getElementById('draw-button');
 drawButton.addEventListener('click', function (e) {
     chart.repaint();
+});
+var resetButton = document.getElementById('reset-button');
+resetButton.addEventListener('click', function (e) {
+    chart.reset();
 });
 //# sourceMappingURL=app.js.map

@@ -125,26 +125,37 @@ class Chart {
 	 * Sets up event listeners for drawing a line on top of the canvas.
 	 */
 	private registerLineDrawingEvents() {
+		let lastX: number;
+		let lastY: number;
+
 		// Press mouse button and start drawing
-		window.addEventListener('mousedown', () => {
+		window.addEventListener('mousedown', (e) => {
 			if (!this.isDrawignLineEnabled) return;
 			this.isDrawingLine = true;
+			lastX = e.clientX;
+			lastY = e.clientY;
+			this.ctx.beginPath();
+			this.ctx.moveTo(lastX, lastY);
 		});
 
 		// Release mouse button and stop drawing
 		window.addEventListener('mouseup', () => {
 			if (!this.isDrawignLineEnabled) return;
 			this.isDrawingLine = false;
+			this.ctx.closePath();
 		});
 
-		// Draw a custom mouse shape
+		// Draw a line
 		window.addEventListener('mousemove', (e) => {
 			if (!this.isDrawignLineEnabled) return;
 			if (this.isDrawingLine) {
-				this.ctx.fillStyle = this.startingLineColor;
+				this.ctx.lineTo(e.clientX, e.clientY);
+				this.ctx.strokeStyle = this.startingLineColor;
+				this.ctx.stroke();
+				lastX = e.clientX;
+				lastY = e.clientY;
 				this.ctx.beginPath();
-				this.ctx.ellipse(e.clientX, e.clientY, 5, 5, Math.PI, 0, Math.PI * 2);
-				this.ctx.fill();
+				this.ctx.moveTo(lastX, lastY);
 			}
 		});
 	}

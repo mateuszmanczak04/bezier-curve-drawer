@@ -56,24 +56,34 @@ var Chart = (function () {
     };
     Chart.prototype.registerLineDrawingEvents = function () {
         var _this = this;
-        window.addEventListener('mousedown', function () {
+        var lastX;
+        var lastY;
+        window.addEventListener('mousedown', function (e) {
             if (!_this.isDrawignLineEnabled)
                 return;
             _this.isDrawingLine = true;
+            lastX = e.clientX;
+            lastY = e.clientY;
+            _this.ctx.beginPath();
+            _this.ctx.moveTo(lastX, lastY);
         });
         window.addEventListener('mouseup', function () {
             if (!_this.isDrawignLineEnabled)
                 return;
             _this.isDrawingLine = false;
+            _this.ctx.closePath();
         });
         window.addEventListener('mousemove', function (e) {
             if (!_this.isDrawignLineEnabled)
                 return;
             if (_this.isDrawingLine) {
-                _this.ctx.fillStyle = _this.startingLineColor;
+                _this.ctx.lineTo(e.clientX, e.clientY);
+                _this.ctx.strokeStyle = _this.startingLineColor;
+                _this.ctx.stroke();
+                lastX = e.clientX;
+                lastY = e.clientY;
                 _this.ctx.beginPath();
-                _this.ctx.ellipse(e.clientX, e.clientY, 5, 5, Math.PI, 0, Math.PI * 2);
-                _this.ctx.fill();
+                _this.ctx.moveTo(lastX, lastY);
             }
         });
     };

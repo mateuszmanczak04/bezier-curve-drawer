@@ -69,12 +69,21 @@ class Chart {
 		this.points.push(new Point(x, y));
 	}
 
-	// Rest canvas to the start state
+	/**
+	 * Resets state of the canvas.
+	 */
 	private clearCanvas() {
 		this.ctx.reset();
 	}
 
-	// Bezier curve joining A-D
+	/**
+	 * Draws a line between main points (interpolates them)
+	 * It has a width of this.lineWidth (default 3) and color of this.lineColor (default #000)
+	 * @param A First point (interpolated)
+	 * @param B Second point (control)
+	 * @param C Third point (control)
+	 * @param D Last point (interpolated)
+	 */
 	private drawCurve(A: Point, B: Point, C: Point, D: Point) {
 		const ctx = this.ctx;
 		ctx.moveTo(A.x, A.y);
@@ -99,7 +108,14 @@ class Chart {
 		ctx.stroke();
 	}
 
-	// Lines between A-B and C-D
+	/**
+	 * Draw helper lines to show how our control points affect the main curve.
+	 * It has a width of this.helperLineWidth (default 1) and color of this.helperLineColor (default #444)
+	 * @param A First point (interpolated)
+	 * @param B Second point (control)
+	 * @param C Third point (control)
+	 * @param D Last point (interpolated)
+	 */
 	private drawHelperLines(A: Point, B: Point, C: Point, D: Point) {
 		const ctx = this.ctx;
 		ctx.beginPath();
@@ -113,7 +129,9 @@ class Chart {
 		ctx.stroke();
 	}
 
-	// Draws points circles
+	/**
+	 * Draws dots where points should appear. It has a radius of this.pointsRadius (default 8) and color of this.pointColor (default #f00).
+	 */
 	private drawPoints() {
 		const points = this.points;
 		const ctx = this.ctx;
@@ -134,7 +152,9 @@ class Chart {
 		ctx.fill();
 	}
 
-	// Clears canvas and paints all we need to see
+	/**
+	 * Clears canvas and draws the expected chart based on it's points.
+	 */
 	repaint() {
 		const points = this.points;
 		this.clearCanvas();
@@ -183,7 +203,7 @@ const registerMouseEvents = () => {
 
 // Start app
 const chart = new Chart('canvas');
-chart.setPoints(points)
+chart.setPoints(points);
 chart.repaint();
 
 registerMouseEvents();

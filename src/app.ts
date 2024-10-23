@@ -63,8 +63,10 @@ class Chart {
 	private pointColor: string;
 	private curveDegree: number;
 	private startingLineColor: string;
-	private isDrawingWithMouse: boolean;
-	private isDrawingWithMouseEnabled: boolean;
+	private isDrawingLine: boolean;
+	private isDrawignLineEnabled: boolean;
+	private isDrawingPoints: boolean;
+	private isDrawingPointsEnabled: boolean;
 
 	/**
 	 * @param canvasId id of the canvas in DOM
@@ -85,50 +87,72 @@ class Chart {
 		this.canvasBackgroundColor = '#eee';
 		this.pointColor = '#f00';
 		this.curveDegree = 3;
-
-		this.startingLineColor = '#00f'
-		this.isDrawingWithMouse = false;
-		this.isDrawingWithMouseEnabled = false;
+		this.startingLineColor = '#00f';
 
 		this.canvas.style.backgroundColor = this.canvasBackgroundColor;
 		this.canvas.width = this.width;
 		this.canvas.height = this.height;
 
-		this.registerMouseDrawingFunctionality();
+		// Drawing line and points on top of the canvas
+		this.isDrawingLine = false;
+		this.isDrawignLineEnabled = false;
+		this.isDrawingPoints = false;
+		this.isDrawingPointsEnabled = false;
+		this.registerLineDrawingEvents();
+		this.registerPointsDrawingEvents();
 	}
 
 	/**
 	 * @param value when true, user may draw a curve with their mouse
 	 */
-	setDrawingWithMouseEnabled(value: boolean) {
-		this.isDrawingWithMouseEnabled = value;
+	setDrawingLineEnabled(value: boolean) {
+		this.isDrawignLineEnabled = value;
 	}
 
 	/**
 	 * Sets up event listeners for drawing a line on top of the canvas.
 	 */
-	private registerMouseDrawingFunctionality() {
+	private registerLineDrawingEvents() {
 		// Press mouse button and start drawing
 		window.addEventListener('mousedown', () => {
-			if (!this.isDrawingWithMouseEnabled) return;
-			this.isDrawingWithMouse = true;
+			if (!this.isDrawignLineEnabled) return;
+			this.isDrawingLine = true;
 		});
 
 		// Release mouse button and stop drawing
 		window.addEventListener('mouseup', () => {
-			if (!this.isDrawingWithMouseEnabled) return;
-			this.isDrawingWithMouse = false;
+			if (!this.isDrawignLineEnabled) return;
+			this.isDrawingLine = false;
 		});
 
 		// Draw a custom mouse shape
 		window.addEventListener('mousemove', (e) => {
-			if (!this.isDrawingWithMouseEnabled) return;
-			if (this.isDrawingWithMouse) {
+			if (!this.isDrawignLineEnabled) return;
+			if (this.isDrawingLine) {
 				this.ctx.fillStyle = this.startingLineColor;
 				this.ctx.beginPath();
-				this.ctx.ellipse(e.clientX, e.clientY, 5, 5, Math.PI, 0 , Math.PI * 2)
+				this.ctx.ellipse(e.clientX, e.clientY, 5, 5, Math.PI, 0, Math.PI * 2);
 				this.ctx.fill();
 			}
+		});
+	}
+
+	/**
+	 * @param value when true, user may draw a curve with their mouse
+	 */
+	setDrawingPointsEnabled(value: boolean) {
+		this.isDrawingPointsEnabled = value;
+	}
+
+	/**
+	 * Sets up event listeners for adding new points to the canvas.
+	 */
+	private registerPointsDrawingEvents() {
+		if (!this.canvas) return;
+		this.canvas.addEventListener('click', (e: MouseEvent) => {
+			if (!this.isDrawingPointsEnabled) return;
+			this.addPoint(e.clientX, e.clientY)
+			this.drawPoints();
 		});
 	}
 
@@ -255,28 +279,23 @@ class Chart {
 		this.drawPoints();
 	}
 }
-
-// Array of coordinates of points, it changes on every point drag
-const points = [
-	new Point(100, 100),
-	new Point(100, 400),
-	new Point(200, 480),
-	new Point(600, 600),
-	new Point(800, 300),
-	new Point(300, 100),
-	new Point(300, 200),
-	new Point(600, 500),
-	new Point(300, 600),
-];
-
 // Start app
 const chart = new Chart('canvas');
-chart.setPoints(points);
-chart.setDegree(points.length - 1);
-chart.repaint();
+chart.setDegree(3);
 
-const drawingWithMouseCheckbox = document.getElementById('drawing-mouse');
-drawingWithMouseCheckbox.addEventListener('change', (e: Event) => {
+const drawingLineCheckbox = document.getElementById('drawing-line');
+drawingLineCheckbox.addEventListener('change', (e: Event) => {
 	const target = e.target as HTMLInputElement;
-	chart.setDrawingWithMouseEnabled(target.checked)
+	chart.setDrawingLineEnabled(target.checked);
+});
+
+const drawingPointsCheckbox = document.getElementById('drawing-points');
+drawingPointsCheckbox.addEventListener('change', (e: Event) => {
+	const target = e.target as HTMLInputElement;
+	chart.setDrawingPointsEnabled(target.checked);
+});
+
+const drawButton = document.getElementById('draw-button');
+drawButton.addEventListener('click', (e) => {
+	chart.repaint();
 })

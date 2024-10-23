@@ -34,37 +34,54 @@ var Chart = (function () {
         this.pointColor = '#f00';
         this.curveDegree = 3;
         this.startingLineColor = '#00f';
-        this.isDrawingWithMouse = false;
-        this.isDrawingWithMouseEnabled = false;
         this.canvas.style.backgroundColor = this.canvasBackgroundColor;
         this.canvas.width = this.width;
         this.canvas.height = this.height;
-        this.registerMouseDrawingFunctionality();
+        this.isDrawingLine = false;
+        this.isDrawignLineEnabled = false;
+        this.isDrawingPoints = false;
+        this.isDrawingPointsEnabled = false;
+        this.registerLineDrawingEvents();
+        this.registerPointsDrawingEvents();
     }
-    Chart.prototype.setDrawingWithMouseEnabled = function (value) {
-        this.isDrawingWithMouseEnabled = value;
+    Chart.prototype.setDrawingLineEnabled = function (value) {
+        this.isDrawignLineEnabled = value;
     };
-    Chart.prototype.registerMouseDrawingFunctionality = function () {
+    Chart.prototype.registerLineDrawingEvents = function () {
         var _this = this;
         window.addEventListener('mousedown', function () {
-            if (!_this.isDrawingWithMouseEnabled)
+            if (!_this.isDrawignLineEnabled)
                 return;
-            _this.isDrawingWithMouse = true;
+            _this.isDrawingLine = true;
         });
         window.addEventListener('mouseup', function () {
-            if (!_this.isDrawingWithMouseEnabled)
+            if (!_this.isDrawignLineEnabled)
                 return;
-            _this.isDrawingWithMouse = false;
+            _this.isDrawingLine = false;
         });
         window.addEventListener('mousemove', function (e) {
-            if (!_this.isDrawingWithMouseEnabled)
+            if (!_this.isDrawignLineEnabled)
                 return;
-            if (_this.isDrawingWithMouse) {
+            if (_this.isDrawingLine) {
                 _this.ctx.fillStyle = _this.startingLineColor;
                 _this.ctx.beginPath();
                 _this.ctx.ellipse(e.clientX, e.clientY, 5, 5, Math.PI, 0, Math.PI * 2);
                 _this.ctx.fill();
             }
+        });
+    };
+    Chart.prototype.setDrawingPointsEnabled = function (value) {
+        this.isDrawingPointsEnabled = value;
+    };
+    Chart.prototype.registerPointsDrawingEvents = function () {
+        var _this = this;
+        if (!this.canvas)
+            return;
+        this.canvas.addEventListener('click', function (e) {
+            if (!_this.isDrawingPointsEnabled)
+                return;
+            _this.addPoint(e.clientX, e.clientY);
+            _this.drawPoints();
         });
     };
     Chart.prototype.setDrawingPrecision = function (precision) {
@@ -141,24 +158,20 @@ var Chart = (function () {
     };
     return Chart;
 }());
-var points = [
-    new Point(100, 100),
-    new Point(100, 400),
-    new Point(200, 480),
-    new Point(600, 600),
-    new Point(800, 300),
-    new Point(300, 100),
-    new Point(300, 200),
-    new Point(600, 500),
-    new Point(300, 600),
-];
 var chart = new Chart('canvas');
-chart.setPoints(points);
-chart.setDegree(points.length - 1);
-chart.repaint();
-var drawingWithMouseCheckbox = document.getElementById('drawing-mouse');
-drawingWithMouseCheckbox.addEventListener('change', function (e) {
+chart.setDegree(3);
+var drawingLineCheckbox = document.getElementById('drawing-line');
+drawingLineCheckbox.addEventListener('change', function (e) {
     var target = e.target;
-    chart.setDrawingWithMouseEnabled(target.checked);
+    chart.setDrawingLineEnabled(target.checked);
+});
+var drawingPointsCheckbox = document.getElementById('drawing-points');
+drawingPointsCheckbox.addEventListener('change', function (e) {
+    var target = e.target;
+    chart.setDrawingPointsEnabled(target.checked);
+});
+var drawButton = document.getElementById('draw-button');
+drawButton.addEventListener('click', function (e) {
+    chart.repaint();
 });
 //# sourceMappingURL=app.js.map

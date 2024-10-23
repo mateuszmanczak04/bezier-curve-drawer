@@ -62,6 +62,8 @@ class Chart {
 	private canvasBackgroundColor: string;
 	private pointColor: string;
 	private curveDegree: number;
+	private startingLineColor: string;
+	private isDrawingWithMouse: boolean;
 
 	/**
 	 * @param canvasId id of the canvas in DOM

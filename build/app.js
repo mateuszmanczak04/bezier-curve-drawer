@@ -118,6 +118,9 @@ var points = [
     new Point(600, 600),
     new Point(800, 300),
     new Point(300, 100),
+    new Point(300, 200),
+    new Point(600, 500),
+    new Point(300, 600),
 ];
 var isDrawing = false;
 var registerMouseEvents = function () {
@@ -134,7 +137,7 @@ var registerMouseEvents = function () {
 };
 var chart = new Chart('canvas');
 chart.setPoints(points);
-chart.setDegree(5);
+chart.setDegree(points.length - 1);
 chart.repaint();
 registerMouseEvents();
 //# sourceMappingURL=app.js.map

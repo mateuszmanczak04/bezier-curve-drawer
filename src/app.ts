@@ -96,7 +96,7 @@ class Chart {
 	}
 
 	/**
-	 * @param degree new degree of the bezier curve (default 3)
+	 * @param degree new degree of the bezier curve (default 3). Must be <= points.length - 1
 	 */
 	setDegree(degree: number) {
 		this.curveDegree = degree;
@@ -223,6 +223,9 @@ const points = [
 	new Point(600, 600),
 	new Point(800, 300),
 	new Point(300, 100),
+	new Point(300, 200),
+	new Point(600, 500),
+	new Point(300, 600),
 ];
 
 // Drawing with mouse functionality
@@ -249,18 +252,8 @@ const registerMouseEvents = () => {
 // Start app
 const chart = new Chart('canvas');
 chart.setPoints(points);
-chart.setDegree(5);
+chart.setDegree(points.length - 1); 
 chart.repaint();
 
-// let i =0;
-// setInterval(() => {
-// 	chart.setDegree(i);
-// 	chart.repaint();
-// 	if (i === points.length - 1) {
-// 		i = 0;
-// 	} else {
-// 		i += 1;
-// 	}
-// }, 500)
 
 registerMouseEvents();

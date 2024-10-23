@@ -8,22 +8,22 @@
 	</head>
 	<body>
 		<div class="controls">
-			<div>
+			<div class="row-center">
 				<input type="checkbox" name="drawing-line" id="drawing-line" />
-				<label for="drawing-line">Drawing line</label>
+				<label for="drawing-line">Drawing Line</label>
 			</div>
-			<div>
+			<div class="row-center">
 				<input type="checkbox" name="drawing-points" id="drawing-points" />
-				<label for="drawing-points">Drawing points</label>
+				<label for="drawing-points">Drawing Points</label>
 			</div>
-			<div>
+			<div class="row-center">
+				<label for="curve-degree">Curve Degree</label>
 				<input type="number" name="curve-degree" id="curve-degree" />
-				<label for="curve-degree">Curve degree</label>
-				<button id="save-degree">Save</button>
+				<button id="save-degree" class="button-primary">Save</button>
 			</div>
-			<button id="draw-button">Draw</button>
-			<button id="reset-points-button">Reset points</button>
-			<button id="clear-canvas-button">Clear canvas</button>
+			<button id="draw-button" class="button-primary">Draw Bezier Curve</button>
+			<button id="reset-points-button" class="button-secondary">Reset Points</button>
+			<button id="clear-canvas-button" class="button-secondary">Clear Canvas</button>
 		</div>
 		<canvas id="canvas" width="500" height="500"></canvas>
 		<script src="build/app.js"></script>

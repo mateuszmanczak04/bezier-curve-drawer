@@ -96,6 +96,13 @@ class Chart {
 	}
 
 	/**
+	 * @param degree new degree of the bezier curve (default 3)
+	 */
+	setDegree(degree: number) {
+		this.curveDegree = degree;
+	}
+
+	/**
 	 * Replace all existing points with new array.
 	 */
 	setPoints(points: Point[]) {
@@ -198,8 +205,7 @@ class Chart {
 		const points = this.points;
 		this.clearCanvas();
 		for (let i = 0; i < points.length - 1; i += this.curveDegree) {
-
-			const pointsToPass = points.slice(i, i + this.curveDegree + 1)
+			const pointsToPass = points.slice(i, i + this.curveDegree + 1);
 
 			if (pointsToPass.length < this.curveDegree + 1) break;
 
@@ -212,10 +218,10 @@ class Chart {
 
 // Array of coordinates of points, it changes on every point drag
 const points = [
-	new Point(100, 100), 
+	new Point(100, 100),
 	new Point(100, 400),
 	new Point(200, 480),
-	new Point(600, 600), 
+	new Point(600, 600),
 	new Point(800, 300),
 	new Point(300, 100),
 ];
@@ -244,6 +250,7 @@ const registerMouseEvents = () => {
 // Start app
 const chart = new Chart('canvas');
 chart.setPoints(points);
+chart.setDegree(5)
 chart.repaint();
 
 registerMouseEvents();

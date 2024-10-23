@@ -40,6 +40,9 @@ var Chart = (function () {
     Chart.prototype.setDrawingPrecision = function (precision) {
         this.drawingPrecision = precision;
     };
+    Chart.prototype.setDegree = function (degree) {
+        this.curveDegree = degree;
+    };
     Chart.prototype.setPoints = function (points) {
         this.points = points;
     };
@@ -131,6 +134,7 @@ var registerMouseEvents = function () {
 };
 var chart = new Chart('canvas');
 chart.setPoints(points);
+chart.setDegree(5);
 chart.repaint();
 registerMouseEvents();
 //# sourceMappingURL=app.js.map

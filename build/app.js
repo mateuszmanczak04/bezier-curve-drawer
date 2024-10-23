@@ -5,21 +5,90 @@ var Point = (function () {
     }
     return Point;
 }());
-var CANVAS_WIDTH = 1200;
-var CANVAS_HEIGHT = 800;
-var POINT_RADIUS = 8;
-var drawingPrecision = 0.01;
-var canvas = document.querySelector('#canvas');
-canvas.width = CANVAS_WIDTH;
-canvas.height = CANVAS_HEIGHT;
-canvas.style.backgroundColor = '#DDD';
-var wrapper = document.getElementById('wrapper');
-var wrapperRect = wrapper.getBoundingClientRect();
-var wrapperX = wrapperRect.left;
-var wrapperY = wrapperRect.top;
-var pointsWrapper = document.getElementById('points-wrapper');
-pointsWrapper.style.width = "".concat(CANVAS_WIDTH, "px");
-pointsWrapper.style.height = "".concat(CANVAS_HEIGHT, "px");
+var Chart = (function () {
+    function Chart(canvasId) {
+        var canvas = document.getElementById(canvasId);
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.points = [];
+        this.drawingPrecision = 0.01;
+        this.width = 1200;
+        this.height = 800;
+        this.pointRadius = 8;
+        this.lineWidth = 3;
+        this.lineColor = '#000';
+        this.helperLineWidth = 1;
+        this.helperLineColor = '#444';
+        this.canvasBackgroundColor = '#eee';
+        this.pointColor = '#f00';
+        this.canvas.style.backgroundColor = this.canvasBackgroundColor;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+    }
+    Chart.prototype.setDrawingPrecision = function (precision) {
+        this.drawingPrecision = precision;
+    };
+    Chart.prototype.addPoint = function (x, y) {
+        this.points.push(new Point(x, y));
+    };
+    Chart.prototype.clearCanvas = function () {
+        this.ctx.reset();
+    };
+    Chart.prototype.drawCurve = function (A, B, C, D) {
+        var ctx = this.ctx;
+        ctx.moveTo(A.x, A.y);
+        ctx.beginPath();
+        for (var t = 0; t <= 1; t += this.drawingPrecision) {
+            var x = A.x * Math.pow((1 - t), 3) +
+                3 * B.x * t * Math.pow((1 - t), 2) +
+                3 * C.x * Math.pow(t, 2) * (1 - t) +
+                D.x * Math.pow(t, 3);
+            var y = A.y * Math.pow((1 - t), 3) +
+                3 * B.y * t * Math.pow((1 - t), 2) +
+                3 * C.y * Math.pow(t, 2) * (1 - t) +
+                D.y * Math.pow(t, 3);
+            ctx.lineTo(x, y);
+        }
+        ctx.lineTo(D.x, D.y);
+        ctx.strokeStyle = this.lineColor;
+        ctx.lineWidth = this.lineWidth;
+        ctx.stroke();
+    };
+    Chart.prototype.drawHelperLines = function (A, B, C, D) {
+        var ctx = this.ctx;
+        ctx.beginPath();
+        ctx.strokeStyle = this.helperLineColor;
+        ctx.lineWidth = this.helperLineWidth;
+        ctx.moveTo(A.x, A.y);
+        ctx.lineTo(B.x, B.y);
+        ctx.stroke();
+        ctx.moveTo(C.x, C.y);
+        ctx.lineTo(D.x, D.y);
+        ctx.stroke();
+    };
+    Chart.prototype.drawPoints = function () {
+        var _this = this;
+        var points = this.points;
+        var ctx = this.ctx;
+        ctx.beginPath();
+        ctx.fillStyle = this.pointColor;
+        points.forEach(function (point) {
+            ctx.moveTo(point.x, point.y);
+            ctx.ellipse(point.x, point.y, _this.pointRadius, _this.pointRadius, Math.PI, 0, Math.PI * 2);
+        });
+        ctx.fill();
+    };
+    Chart.prototype.repaint = function () {
+        var points = this.points;
+        this.clearCanvas();
+        for (var i = 0; i < points.length - 1; i += 3) {
+            this.drawHelperLines(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
+            this.drawCurve(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
+        }
+        this.drawPoints();
+    };
+    return Chart;
+}());
 var points = [
     new Point(100, 100),
     new Point(400, 20),
@@ -32,98 +101,21 @@ var points = [
     new Point(900, 650),
     new Point(500, 700),
 ];
-var pointsElements = points.map(function (point, index) {
-    var pointElement = document.createElement('div');
-    pointElement.classList.add('point');
-    pointElement.style.left = "".concat(point.x - 8, "px");
-    pointElement.style.top = "".concat(point.y - 8, "px");
-    pointElement.style.width = "".concat(2 * POINT_RADIUS, "px");
-    pointElement.style.height = "".concat(2 * POINT_RADIUS, "px");
-    pointElement.addEventListener('mousedown', function () {
-        currentPointIndex = index;
-    });
-    return pointElement;
-});
-pointsElements.forEach(function (pointElement) {
-    pointsWrapper.appendChild(pointElement);
-});
-var currentPointIndex = -1;
-var ctx = canvas.getContext('2d');
-if (!ctx)
-    throw new Error('Canvas context not found!');
-var clearCanvas = function () {
-    ctx.reset();
-};
-var drawCurve = function (A, B, C, D) {
-    ctx.moveTo(A.x, A.y);
-    ctx.beginPath();
-    for (var t = 0; t <= 1; t += drawingPrecision) {
-        var x = A.x * Math.pow((1 - t), 3) +
-            3 * B.x * t * Math.pow((1 - t), 2) +
-            3 * C.x * Math.pow(t, 2) * (1 - t) +
-            D.x * Math.pow(t, 3);
-        var y = A.y * Math.pow((1 - t), 3) +
-            3 * B.y * t * Math.pow((1 - t), 2) +
-            3 * C.y * Math.pow(t, 2) * (1 - t) +
-            D.y * Math.pow(t, 3);
-        ctx.lineTo(x, y);
-    }
-    ctx.lineTo(D.x, D.y);
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-};
-var drawHelperLines = function (A, B, C, D) {
-    ctx.beginPath();
-    ctx.strokeStyle = '#aaa';
-    ctx.lineWidth = 1;
-    ctx.moveTo(A.x, A.y);
-    ctx.lineTo(B.x, B.y);
-    ctx.stroke();
-    ctx.moveTo(C.x, C.y);
-    ctx.lineTo(D.x, D.y);
-    ctx.stroke();
-};
-var drawPoints = function (points) {
-    ctx.beginPath();
-    ctx.fillStyle = '#444';
-    points.forEach(function (point) {
-        ctx.moveTo(point.x, point.y);
-        ctx.ellipse(point.x, point.y, POINT_RADIUS, POINT_RADIUS, Math.PI, 0, Math.PI * 2);
-    });
-    ctx.fill();
-};
-var repaint = function (points) {
-    clearCanvas();
-    for (var i = 0; i < points.length - 1; i += 3) {
-        drawHelperLines(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
-        drawCurve(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
-    }
-    drawPoints(points);
-};
+var isDrawing = false;
 var registerMouseEvents = function () {
+    window.addEventListener('mousedown', function () {
+        isDrawing = true;
+    });
     window.addEventListener('mouseup', function () {
-        if (currentPointIndex === -1)
-            return;
-        currentPointIndex = -1;
+        isDrawing = false;
     });
     window.addEventListener('mousemove', function (e) {
-        if (currentPointIndex === -1)
-            return;
-        points[currentPointIndex].x = e.clientX - wrapperX;
-        points[currentPointIndex].y = e.clientY - wrapperY;
-        pointsElements[currentPointIndex].style.left = "".concat(e.clientX - wrapperX - POINT_RADIUS, "px");
-        pointsElements[currentPointIndex].style.top = "".concat(e.clientY - wrapperY - POINT_RADIUS, "px");
-        repaint(points);
+        if (isDrawing) {
+        }
     });
 };
-var precisionInputElement = document.getElementById('precision-input');
-precisionInputElement.value = drawingPrecision.toString();
-var precisionSubmitButton = document.getElementById('precision-button');
-precisionSubmitButton.addEventListener('click', function () {
-    drawingPrecision = parseFloat(precisionInputElement.value || '0.1');
-    repaint(points);
-});
-repaint(points);
+var chart = new Chart('canvas');
+points.forEach(function (p) { return chart.addPoint(p.x, p.y); });
+chart.repaint();
 registerMouseEvents();
 //# sourceMappingURL=app.js.map

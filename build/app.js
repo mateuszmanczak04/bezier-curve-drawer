@@ -33,10 +33,40 @@ var Chart = (function () {
         this.canvasBackgroundColor = '#eee';
         this.pointColor = '#f00';
         this.curveDegree = 3;
+        this.startingLineColor = '#00f';
+        this.isDrawingWithMouse = false;
+        this.isDrawingWithMouseEnabled = false;
         this.canvas.style.backgroundColor = this.canvasBackgroundColor;
         this.canvas.width = this.width;
         this.canvas.height = this.height;
+        this.registerMouseDrawingFunctionality();
     }
+    Chart.prototype.setDrawingWithMouseEnabled = function (value) {
+        this.isDrawingWithMouseEnabled = value;
+    };
+    Chart.prototype.registerMouseDrawingFunctionality = function () {
+        var _this = this;
+        window.addEventListener('mousedown', function () {
+            if (!_this.isDrawingWithMouseEnabled)
+                return;
+            _this.isDrawingWithMouse = true;
+        });
+        window.addEventListener('mouseup', function () {
+            if (!_this.isDrawingWithMouseEnabled)
+                return;
+            _this.isDrawingWithMouse = false;
+        });
+        window.addEventListener('mousemove', function (e) {
+            if (!_this.isDrawingWithMouseEnabled)
+                return;
+            if (_this.isDrawingWithMouse) {
+                _this.ctx.fillStyle = _this.startingLineColor;
+                _this.ctx.beginPath();
+                _this.ctx.ellipse(e.clientX, e.clientY, 5, 5, Math.PI, 0, Math.PI * 2);
+                _this.ctx.fill();
+            }
+        });
+    };
     Chart.prototype.setDrawingPrecision = function (precision) {
         this.drawingPrecision = precision;
     };
@@ -122,22 +152,13 @@ var points = [
     new Point(600, 500),
     new Point(300, 600),
 ];
-var isDrawing = false;
-var registerMouseEvents = function () {
-    window.addEventListener('mousedown', function () {
-        isDrawing = true;
-    });
-    window.addEventListener('mouseup', function () {
-        isDrawing = false;
-    });
-    window.addEventListener('mousemove', function (e) {
-        if (isDrawing) {
-        }
-    });
-};
 var chart = new Chart('canvas');
 chart.setPoints(points);
 chart.setDegree(points.length - 1);
 chart.repaint();
-registerMouseEvents();
+var drawingWithMouseCheckbox = document.getElementById('drawing-mouse');
+drawingWithMouseCheckbox.addEventListener('change', function (e) {
+    var target = e.target;
+    chart.setDrawingWithMouseEnabled(target.checked);
+});
 //# sourceMappingURL=app.js.map

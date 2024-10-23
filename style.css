@@ -1,16 +1,7 @@
-#wrapper {
-	position: relative;
-}
-
-#points-wrapper {
-	position: absolute;
-	left: 0;
-	top: 0;
-	z-index: 10;
-}
-
-.point {
-	position: absolute;
-	background-color: red;
-	border-radius: 50%;
+.controls {
+	position: fixed;
+	left: 1rem;
+	top: 1rem;
+	background-color: white;
+	padding: 1rem;
 }

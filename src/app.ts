@@ -64,6 +64,7 @@ class Chart {
 	private curveDegree: number;
 	private startingLineColor: string;
 	private isDrawingWithMouse: boolean;
+	private isDrawingWithMouseEnabled: boolean;
 
 	/**
 	 * @param canvasId id of the canvas in DOM
@@ -85,9 +86,50 @@ class Chart {
 		this.pointColor = '#f00';
 		this.curveDegree = 3;
 
+		this.startingLineColor = '#00f'
+		this.isDrawingWithMouse = false;
+		this.isDrawingWithMouseEnabled = false;
+
 		this.canvas.style.backgroundColor = this.canvasBackgroundColor;
 		this.canvas.width = this.width;
 		this.canvas.height = this.height;
+
+		this.registerMouseDrawingFunctionality();
+	}
+
+	/**
+	 * @param value when true, user may draw a curve with their mouse
+	 */
+	setDrawingWithMouseEnabled(value: boolean) {
+		this.isDrawingWithMouseEnabled = value;
+	}
+
+	/**
+	 * Sets up event listeners for drawing a line on top of the canvas.
+	 */
+	private registerMouseDrawingFunctionality() {
+		// Press mouse button and start drawing
+		window.addEventListener('mousedown', () => {
+			if (!this.isDrawingWithMouseEnabled) return;
+			this.isDrawingWithMouse = true;
+		});
+
+		// Release mouse button and stop drawing
+		window.addEventListener('mouseup', () => {
+			if (!this.isDrawingWithMouseEnabled) return;
+			this.isDrawingWithMouse = false;
+		});
+
+		// Draw a custom mouse shape
+		window.addEventListener('mousemove', (e) => {
+			if (!this.isDrawingWithMouseEnabled) return;
+			if (this.isDrawingWithMouse) {
+				this.ctx.fillStyle = this.startingLineColor;
+				this.ctx.beginPath();
+				this.ctx.ellipse(e.clientX, e.clientY, 5, 5, Math.PI, 0 , Math.PI * 2)
+				this.ctx.fill();
+			}
+		});
 	}
 
 	/**
@@ -159,10 +201,7 @@ class Chart {
 	/**
 	 * Draw helper lines to show how our control points affect the main curve.
 	 * It has a width of this.helperLineWidth (default 1) and color of this.helperLineColor (default #444)
-	 * @param A First point (interpolated)
-	 * @param B Second point (control)
-	 * @param C Third point (control)
-	 * @param D Last point (interpolated)
+	 * @param points points of the current curve fragment. Their amount must be equal to this.drawingPrecision + 1
 	 */
 	private drawHelperLines(points: Point[]) {
 		const ctx = this.ctx;
@@ -230,32 +269,14 @@ const points = [
 	new Point(300, 600),
 ];
 
-// Drawing with mouse functionality
-let isDrawing = false;
-const registerMouseEvents = () => {
-	// Press mouse button and start drawing
-	window.addEventListener('mousedown', () => {
-		isDrawing = true;
-	});
-
-	// Release mouse button and stop drawing
-	window.addEventListener('mouseup', () => {
-		isDrawing = false;
-	});
-
-	// Draw a custom mouse shape
-	window.addEventListener('mousemove', (e) => {
-		if (isDrawing) {
-			// TODO: draw line
-		}
-	});
-};
-
 // Start app
 const chart = new Chart('canvas');
 chart.setPoints(points);
-chart.setDegree(points.length - 1); 
+chart.setDegree(points.length - 1);
 chart.repaint();
 
-
-registerMouseEvents();
+const drawingWithMouseCheckbox = document.getElementById('drawing-mouse');
+drawingWithMouseCheckbox.addEventListener('change', (e: Event) => {
+	const target = e.target as HTMLInputElement;
+	chart.setDrawingWithMouseEnabled(target.checked)
+})

@@ -1,3 +1,43 @@
+/**
+ * Computes the binomial coefficient, also known as "n choose k", which represents
+ * the number of ways to choose `k` elements from a set of `n` elements without regard to order.
+ *
+ * Mathematically, it's given by:
+ *
+ *          n!
+ * C(n, k) = -----
+ *          k!(n-k)!
+ *
+ * @param n - The total number of elements in the set.
+ * @param k - The number of elements to choose.
+ * @returns The binomial coefficient (n choose k), which is an integer value.
+ */
+const binomialCoefficient = (n: number, k: number): number => {
+	let result = 1;
+	for (let i = 1; i <= k; i++) {
+		result = (result * (n - i + 1)) / i;
+	}
+	return result;
+};
+
+/**
+ * Computes the value of a Bernstein polynomial, which is a part of the basis used in Bezier curves.
+ * The polynomial is defined as:
+ *
+ * B_{n,k}(t) = C(n, k) * t^k * (1 - t)^(n - k)
+ *
+ * Where C(n, k) is the binomial coefficient "n choose k".
+ *
+ * @param n - The degree of the polynomial, representing the total number of control points - 1.
+ * @param k - The index of the specific Bernstein polynomial.
+ * @param t - The parameter in the range [0, 1], representing the interpolation value.
+ * @returns The value of the Bernstein polynomial B_{n,k}(t), which is used for calculating Bezier curves.
+ */
+const bernsteinPolynomial = (n: number, k: number, t: number): number => {
+	const binomialCoeff = binomialCoefficient(n, k);
+	return binomialCoeff * Math.pow(t, k) * Math.pow(1 - t, n - k);
+};
+
 class Point {
 	declare x;
 	declare y;
@@ -21,6 +61,7 @@ class Chart {
 	private helperLineColor: string;
 	private canvasBackgroundColor: string;
 	private pointColor: string;
+	private curveDegree: number;
 
 	/**
 	 * @param canvasId id of the canvas in DOM
@@ -40,6 +81,7 @@ class Chart {
 		this.helperLineColor = '#444';
 		this.canvasBackgroundColor = '#eee';
 		this.pointColor = '#f00';
+		this.curveDegree = 3;
 
 		this.canvas.style.backgroundColor = this.canvasBackgroundColor;
 		this.canvas.width = this.width;
@@ -78,31 +120,28 @@ class Chart {
 
 	/**
 	 * Draws a line between main points (interpolates them)
-	 * It has a width of this.lineWidth (default 3) and color of this.lineColor (default #000)
-	 * @param A First point (interpolated)
-	 * @param B Second point (control)
-	 * @param C Third point (control)
-	 * @param D Last point (interpolated)
+	 * It has a width of this.lineWidth (default 3) and color of this.lineColor (default #000).
+	 * @param points points of the current curve fragment. Their amount must be equal to this.drawingPrecision + 1
 	 */
-	private drawCurve(A: Point, B: Point, C: Point, D: Point) {
+	private drawCurve(points: Point[]) {
 		const ctx = this.ctx;
-		ctx.moveTo(A.x, A.y);
+		ctx.moveTo(points[0].x, points[0].y);
 		ctx.beginPath();
 
 		for (let t = 0; t <= 1; t += this.drawingPrecision) {
-			const x =
-				A.x * (1 - t) ** 3 +
-				3 * B.x * t * (1 - t) ** 2 +
-				3 * C.x * t ** 2 * (1 - t) +
-				D.x * t ** 3;
-			const y =
-				A.y * (1 - t) ** 3 +
-				3 * B.y * t * (1 - t) ** 2 +
-				3 * C.y * t ** 2 * (1 - t) +
-				D.y * t ** 3;
+			const x = points.reduce(
+				(acc, point, index) =>
+					acc + bernsteinPolynomial(this.curveDegree, index, t) * point.x,
+				0,
+			);
+			const y = points.reduce(
+				(acc, point, index) =>
+					acc + bernsteinPolynomial(this.curveDegree, index, t) * point.y,
+				0,
+			);
 			ctx.lineTo(x, y);
 		}
-		ctx.lineTo(D.x, D.y);
+		ctx.lineTo(points[this.curveDegree].x, points[this.curveDegree].y);
 		ctx.strokeStyle = this.lineColor;
 		ctx.lineWidth = this.lineWidth;
 		ctx.stroke();
@@ -116,16 +155,16 @@ class Chart {
 	 * @param C Third point (control)
 	 * @param D Last point (interpolated)
 	 */
-	private drawHelperLines(A: Point, B: Point, C: Point, D: Point) {
+	private drawHelperLines(points: Point[]) {
 		const ctx = this.ctx;
 		ctx.beginPath();
 		ctx.strokeStyle = this.helperLineColor;
 		ctx.lineWidth = this.helperLineWidth;
-		ctx.moveTo(A.x, A.y);
-		ctx.lineTo(B.x, B.y);
+		ctx.moveTo(points[0].x, points[0].y);
+		ctx.lineTo(points[1].x, points[1].y);
 		ctx.stroke();
-		ctx.moveTo(C.x, C.y);
-		ctx.lineTo(D.x, D.y);
+		ctx.moveTo(points[2].x, points[2].y);
+		ctx.lineTo(points[3].x, points[3].y);
 		ctx.stroke();
 	}
 
@@ -158,9 +197,14 @@ class Chart {
 	repaint() {
 		const points = this.points;
 		this.clearCanvas();
-		for (let i = 0; i < points.length - 1; i += 3) {
-			this.drawHelperLines(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
-			this.drawCurve(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
+		for (let i = 0; i < points.length - 1; i += this.curveDegree) {
+
+			const pointsToPass = points.slice(i, i + this.curveDegree + 1)
+
+			if (pointsToPass.length < this.curveDegree + 1) break;
+
+			// this.drawHelperLines(points.slice(i, i + this.curveDegree + 1));
+			this.drawCurve(pointsToPass);
 		}
 		this.drawPoints();
 	}
@@ -168,16 +212,12 @@ class Chart {
 
 // Array of coordinates of points, it changes on every point drag
 const points = [
-	new Point(100, 100), // Starting point
-	new Point(400, 20),
-	new Point(50, 480),
-	new Point(400, 400), // Common point
+	new Point(100, 100), 
+	new Point(100, 400),
+	new Point(200, 480),
+	new Point(600, 600), 
 	new Point(800, 300),
-	new Point(500, 100),
-	new Point(800, 200), // Common point
-	new Point(1000, 500),
-	new Point(900, 650),
-	new Point(500, 700), // End point
+	new Point(300, 100),
 ];
 
 // Drawing with mouse functionality

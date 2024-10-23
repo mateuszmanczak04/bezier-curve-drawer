@@ -1,3 +1,14 @@
+var binomialCoefficient = function (n, k) {
+    var result = 1;
+    for (var i = 1; i <= k; i++) {
+        result = (result * (n - i + 1)) / i;
+    }
+    return result;
+};
+var bernsteinPolynomial = function (n, k, t) {
+    var binomialCoeff = binomialCoefficient(n, k);
+    return binomialCoeff * Math.pow(t, k) * Math.pow(1 - t, n - k);
+};
 var Point = (function () {
     function Point(_x, _y) {
         this.x = _x;
@@ -21,6 +32,7 @@ var Chart = (function () {
         this.helperLineColor = '#444';
         this.canvasBackgroundColor = '#eee';
         this.pointColor = '#f00';
+        this.curveDegree = 3;
         this.canvas.style.backgroundColor = this.canvasBackgroundColor;
         this.canvas.width = this.width;
         this.canvas.height = this.height;
@@ -37,36 +49,38 @@ var Chart = (function () {
     Chart.prototype.clearCanvas = function () {
         this.ctx.reset();
     };
-    Chart.prototype.drawCurve = function (A, B, C, D) {
+    Chart.prototype.drawCurve = function (points) {
+        var _this = this;
         var ctx = this.ctx;
-        ctx.moveTo(A.x, A.y);
+        ctx.moveTo(points[0].x, points[0].y);
         ctx.beginPath();
-        for (var t = 0; t <= 1; t += this.drawingPrecision) {
-            var x = A.x * Math.pow((1 - t), 3) +
-                3 * B.x * t * Math.pow((1 - t), 2) +
-                3 * C.x * Math.pow(t, 2) * (1 - t) +
-                D.x * Math.pow(t, 3);
-            var y = A.y * Math.pow((1 - t), 3) +
-                3 * B.y * t * Math.pow((1 - t), 2) +
-                3 * C.y * Math.pow(t, 2) * (1 - t) +
-                D.y * Math.pow(t, 3);
+        var _loop_1 = function (t) {
+            var x = points.reduce(function (acc, point, index) {
+                return acc + bernsteinPolynomial(_this.curveDegree, index, t) * point.x;
+            }, 0);
+            var y = points.reduce(function (acc, point, index) {
+                return acc + bernsteinPolynomial(_this.curveDegree, index, t) * point.y;
+            }, 0);
             ctx.lineTo(x, y);
+        };
+        for (var t = 0; t <= 1; t += this.drawingPrecision) {
+            _loop_1(t);
         }
-        ctx.lineTo(D.x, D.y);
+        ctx.lineTo(points[this.curveDegree].x, points[this.curveDegree].y);
         ctx.strokeStyle = this.lineColor;
         ctx.lineWidth = this.lineWidth;
         ctx.stroke();
     };
-    Chart.prototype.drawHelperLines = function (A, B, C, D) {
+    Chart.prototype.drawHelperLines = function (points) {
         var ctx = this.ctx;
         ctx.beginPath();
         ctx.strokeStyle = this.helperLineColor;
         ctx.lineWidth = this.helperLineWidth;
-        ctx.moveTo(A.x, A.y);
-        ctx.lineTo(B.x, B.y);
+        ctx.moveTo(points[0].x, points[0].y);
+        ctx.lineTo(points[1].x, points[1].y);
         ctx.stroke();
-        ctx.moveTo(C.x, C.y);
-        ctx.lineTo(D.x, D.y);
+        ctx.moveTo(points[2].x, points[2].y);
+        ctx.lineTo(points[3].x, points[3].y);
         ctx.stroke();
     };
     Chart.prototype.drawPoints = function () {
@@ -84,9 +98,11 @@ var Chart = (function () {
     Chart.prototype.repaint = function () {
         var points = this.points;
         this.clearCanvas();
-        for (var i = 0; i < points.length - 1; i += 3) {
-            this.drawHelperLines(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
-            this.drawCurve(points[i + 0], points[i + 1], points[i + 2], points[i + 3]);
+        for (var i = 0; i < points.length - 1; i += this.curveDegree) {
+            var pointsToPass = points.slice(i, i + this.curveDegree + 1);
+            if (pointsToPass.length < this.curveDegree + 1)
+                break;
+            this.drawCurve(pointsToPass);
         }
         this.drawPoints();
     };
@@ -94,15 +110,11 @@ var Chart = (function () {
 }());
 var points = [
     new Point(100, 100),
-    new Point(400, 20),
-    new Point(50, 480),
-    new Point(400, 400),
+    new Point(100, 400),
+    new Point(200, 480),
+    new Point(600, 600),
     new Point(800, 300),
-    new Point(500, 100),
-    new Point(800, 200),
-    new Point(1000, 500),
-    new Point(900, 650),
-    new Point(500, 700),
+    new Point(300, 100),
 ];
 var isDrawing = false;
 var registerMouseEvents = function () {

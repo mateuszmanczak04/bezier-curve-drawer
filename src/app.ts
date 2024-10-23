@@ -77,8 +77,8 @@ class Chart {
 		this.ctx = canvas.getContext('2d');
 		this.points = [];
 		this.drawingPrecision = 0.01;
-		this.width = 1200;
-		this.height = 800;
+		this.width = 500;
+		this.height = 500;
 		this.pointRadius = 8;
 		this.lineWidth = 3;
 		this.lineColor = '#000';
@@ -100,6 +100,13 @@ class Chart {
 		this.isDrawingPointsEnabled = false;
 		this.registerLineDrawingEvents();
 		this.registerPointsDrawingEvents();
+	}
+
+	setDimensions(width: number, height: number) {
+		this.width = width;
+		this.height = height;
+		this.canvas.width = this.width;
+		this.canvas.height = this.height;
 	}
 
 	/**
@@ -283,6 +290,9 @@ class Chart {
 const chart = new Chart('canvas');
 chart.setDegree(3);
 
+// Settings canvas dimensions to match entire screen size
+chart.setDimensions(window.innerWidth, window.innerHeight);
+
 const drawingLineCheckbox = document.getElementById('drawing-line');
 drawingLineCheckbox.addEventListener('change', (e: Event) => {
 	const target = e.target as HTMLInputElement;
@@ -294,6 +304,12 @@ drawingPointsCheckbox.addEventListener('change', (e: Event) => {
 	const target = e.target as HTMLInputElement;
 	chart.setDrawingPointsEnabled(target.checked);
 });
+
+const curveDegreeInput = document.getElementById('curve-degree');
+curveDegreeInput.addEventListener('change', (e: Event) => {
+	const target = e.target as HTMLInputElement;
+	chart.setDegree(parseInt(target.value))
+})
 
 const drawButton = document.getElementById('draw-button');
 drawButton.addEventListener('click', (e) => {

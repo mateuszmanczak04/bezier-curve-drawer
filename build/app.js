@@ -23,8 +23,8 @@ var Chart = (function () {
         this.ctx = canvas.getContext('2d');
         this.points = [];
         this.drawingPrecision = 0.01;
-        this.width = 1200;
-        this.height = 800;
+        this.width = 500;
+        this.height = 500;
         this.pointRadius = 8;
         this.lineWidth = 3;
         this.lineColor = '#000';
@@ -44,6 +44,12 @@ var Chart = (function () {
         this.registerLineDrawingEvents();
         this.registerPointsDrawingEvents();
     }
+    Chart.prototype.setDimensions = function (width, height) {
+        this.width = width;
+        this.height = height;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+    };
     Chart.prototype.setDrawingLineEnabled = function (value) {
         this.isDrawignLineEnabled = value;
     };
@@ -160,6 +166,7 @@ var Chart = (function () {
 }());
 var chart = new Chart('canvas');
 chart.setDegree(3);
+chart.setDimensions(window.innerWidth, window.innerHeight);
 var drawingLineCheckbox = document.getElementById('drawing-line');
 drawingLineCheckbox.addEventListener('change', function (e) {
     var target = e.target;
@@ -169,6 +176,11 @@ var drawingPointsCheckbox = document.getElementById('drawing-points');
 drawingPointsCheckbox.addEventListener('change', function (e) {
     var target = e.target;
     chart.setDrawingPointsEnabled(target.checked);
+});
+var curveDegreeInput = document.getElementById('curve-degree');
+curveDegreeInput.addEventListener('change', function (e) {
+    var target = e.target;
+    chart.setDegree(parseInt(target.value));
 });
 var drawButton = document.getElementById('draw-button');
 drawButton.addEventListener('click', function (e) {

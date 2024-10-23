@@ -39,7 +39,6 @@ var Chart = (function () {
         this.canvas.height = this.height;
         this.isDrawingLine = false;
         this.isDrawignLineEnabled = false;
-        this.isDrawingPoints = false;
         this.isDrawingPointsEnabled = false;
         this.registerLineDrawingEvents();
         this.registerPointsDrawingEvents();

@@ -65,7 +65,6 @@ class Chart {
 	private startingLineColor: string;
 	private isDrawingLine: boolean;
 	private isDrawignLineEnabled: boolean;
-	private isDrawingPoints: boolean;
 	private isDrawingPointsEnabled: boolean;
 
 	/**
@@ -96,7 +95,6 @@ class Chart {
 		// Drawing line and points on top of the canvas
 		this.isDrawingLine = false;
 		this.isDrawignLineEnabled = false;
-		this.isDrawingPoints = false;
 		this.isDrawingPointsEnabled = false;
 		this.registerLineDrawingEvents();
 		this.registerPointsDrawingEvents();

@@ -164,15 +164,20 @@ class Chart {
 	 */
 	private drawHelperLines(points: Point[]) {
 		const ctx = this.ctx;
-		ctx.beginPath();
 		ctx.strokeStyle = this.helperLineColor;
 		ctx.lineWidth = this.helperLineWidth;
-		ctx.moveTo(points[0].x, points[0].y);
-		ctx.lineTo(points[1].x, points[1].y);
+		ctx.beginPath();
+		ctx.moveTo(points[0].x, points[0].x);
+		for (let i = 0; i < points.length - 1; i++) {
+			ctx.lineTo(points[i + 1].x, points[i + 1].y);
+		}
 		ctx.stroke();
-		ctx.moveTo(points[2].x, points[2].y);
-		ctx.lineTo(points[3].x, points[3].y);
-		ctx.stroke();
+		// ctx.moveTo(points[0].x, points[0].y);
+		// ctx.lineTo(points[1].x, points[1].y);
+		// ctx.stroke();
+		// ctx.moveTo(points[2].x, points[2].y);
+		// ctx.lineTo(points[3].x, points[3].y);
+		// ctx.stroke();
 	}
 
 	/**
@@ -209,7 +214,7 @@ class Chart {
 
 			if (pointsToPass.length < this.curveDegree + 1) break;
 
-			// this.drawHelperLines(points.slice(i, i + this.curveDegree + 1));
+			this.drawHelperLines(points.slice(i, i + this.curveDegree + 1));
 			this.drawCurve(pointsToPass);
 		}
 		this.drawPoints();
@@ -250,7 +255,7 @@ const registerMouseEvents = () => {
 // Start app
 const chart = new Chart('canvas');
 chart.setPoints(points);
-chart.setDegree(5)
+chart.setDegree(5);
 chart.repaint();
 
 registerMouseEvents();

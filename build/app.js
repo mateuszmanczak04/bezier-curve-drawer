@@ -76,14 +76,13 @@ var Chart = (function () {
     };
     Chart.prototype.drawHelperLines = function (points) {
         var ctx = this.ctx;
-        ctx.beginPath();
         ctx.strokeStyle = this.helperLineColor;
         ctx.lineWidth = this.helperLineWidth;
-        ctx.moveTo(points[0].x, points[0].y);
-        ctx.lineTo(points[1].x, points[1].y);
-        ctx.stroke();
-        ctx.moveTo(points[2].x, points[2].y);
-        ctx.lineTo(points[3].x, points[3].y);
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].x);
+        for (var i = 0; i < points.length - 1; i++) {
+            ctx.lineTo(points[i + 1].x, points[i + 1].y);
+        }
         ctx.stroke();
     };
     Chart.prototype.drawPoints = function () {
@@ -105,6 +104,7 @@ var Chart = (function () {
             var pointsToPass = points.slice(i, i + this.curveDegree + 1);
             if (pointsToPass.length < this.curveDegree + 1)
                 break;
+            this.drawHelperLines(points.slice(i, i + this.curveDegree + 1));
             this.drawCurve(pointsToPass);
         }
         this.drawPoints();

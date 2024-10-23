@@ -42,6 +42,8 @@ var Chart = (function () {
         this.isDrawingPointsEnabled = false;
         this.registerLineDrawingEvents();
         this.registerPointsDrawingEvents();
+        this.draggedPointIndex = -1;
+        this.registerPointsDraggingEvents();
     }
     Chart.prototype.setDimensions = function (width, height) {
         this.width = width;
@@ -87,6 +89,35 @@ var Chart = (function () {
                 return;
             _this.addPoint(e.clientX, e.clientY);
             _this.drawPoints();
+        });
+    };
+    Chart.prototype.registerPointsDraggingEvents = function () {
+        var _this = this;
+        this.canvas.addEventListener('mousedown', function (e) {
+            var _a = [e.clientX, e.clientY], x = _a[0], y = _a[1];
+            _this.points.forEach(function (p, index) {
+                var distance = Math.sqrt(Math.pow((p.x - x), 2) + Math.pow((p.y - y), 2));
+                if (distance <= _this.pointRadius) {
+                    _this.draggedPointIndex = index;
+                    return true;
+                }
+                return false;
+            });
+        });
+        window.addEventListener('mousemove', function (e) {
+            if (_this.draggedPointIndex === -1) {
+                console.log('-1');
+                return;
+            }
+            console.log('before', _this.points[_this.draggedPointIndex]);
+            _this.points[_this.draggedPointIndex].x = e.clientX;
+            _this.points[_this.draggedPointIndex].y = e.clientY;
+            console.log('after', _this.points[_this.draggedPointIndex]);
+            _this.clearCanvas();
+            _this.repaint();
+        });
+        window.addEventListener('mouseup', function () {
+            _this.draggedPointIndex = -1;
         });
     };
     Chart.prototype.setDrawingPrecision = function (precision) {

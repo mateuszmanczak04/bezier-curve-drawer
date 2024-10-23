@@ -66,6 +66,10 @@ class Chart {
 	private isDrawingLine: boolean;
 	private isDrawignLineEnabled: boolean;
 	private isDrawingPointsEnabled: boolean;
+	/**
+	 * -1 for no point selected
+	 */
+	private draggedPointIndex: number;
 
 	/**
 	 * @param canvasId id of the canvas in DOM
@@ -98,6 +102,9 @@ class Chart {
 		this.isDrawingPointsEnabled = false;
 		this.registerLineDrawingEvents();
 		this.registerPointsDrawingEvents();
+
+		this.draggedPointIndex = -1;
+		this.registerPointsDraggingEvents();
 	}
 
 	setDimensions(width: number, height: number) {
@@ -158,6 +165,40 @@ class Chart {
 			if (!this.isDrawingPointsEnabled) return;
 			this.addPoint(e.clientX, e.clientY);
 			this.drawPoints();
+		});
+	}
+
+	/**
+	 * After clicking on a canvas it detects whether the mouse hits any of the points hitboxes. We are using Euclidean metric here.
+	 */
+	private registerPointsDraggingEvents() {
+		this.canvas.addEventListener('mousedown', (e) => {
+			const [x, y] = [e.clientX, e.clientY];
+			this.points.forEach((p, index) => {
+				const distance = Math.sqrt((p.x - x) ** 2 + (p.y - y) ** 2);
+				if (distance <= this.pointRadius) {
+					this.draggedPointIndex = index;
+					return true;
+				}
+				return false;
+			});
+		});
+
+		window.addEventListener('mousemove', (e) => {
+			if (this.draggedPointIndex === -1) {
+				console.log('-1')
+				return;
+			}
+			console.log('before', this.points[this.draggedPointIndex])
+			this.points[this.draggedPointIndex].x = e.clientX;
+			this.points[this.draggedPointIndex].y = e.clientY
+			console.log('after', this.points[this.draggedPointIndex])
+			this.clearCanvas();
+			this.repaint();
+		});
+
+		window.addEventListener('mouseup', () => {
+			this.draggedPointIndex = -1;
 		});
 	}
 

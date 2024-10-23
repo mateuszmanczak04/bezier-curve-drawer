@@ -196,9 +196,8 @@ class Chart {
 	/**
 	 * Resets state of the canvas and removes points.
 	 */
-	reset() {
+	clearCanvas() {
 		this.ctx.reset();
-		this.points = [];
 	}
 
 	/**
@@ -305,18 +304,23 @@ drawingPointsCheckbox.addEventListener('change', (e: Event) => {
 	chart.setDrawingPointsEnabled(target.checked);
 });
 
-const curveDegreeInput = document.getElementById('curve-degree');
-curveDegreeInput.addEventListener('change', (e: Event) => {
-	const target = e.target as HTMLInputElement;
-	chart.setDegree(parseInt(target.value))
-})
+const curveDegreeInput = document.getElementById('curve-degree') as HTMLInputElement;
+const saveCurveDegreeButton = document.getElementById('save-degree') as HTMLButtonElement;
+saveCurveDegreeButton.addEventListener('click', () => {
+	chart.setDegree(parseInt(curveDegreeInput.value));
+});
 
 const drawButton = document.getElementById('draw-button');
-drawButton.addEventListener('click', (e) => {
+drawButton.addEventListener('click', () => {
 	chart.repaint();
 });
 
-const resetButton = document.getElementById('reset-button');
-resetButton.addEventListener('click', (e) => {
-	chart.reset();
+const resetPointsButton = document.getElementById('reset-points-button');
+resetPointsButton.addEventListener('click', () => {
+	chart.setPoints([]);
+});
+
+const clearCanvasButton = document.getElementById('clear-canvas-button');
+clearCanvasButton.addEventListener('click', () => {
+	chart.clearCanvas();
 });

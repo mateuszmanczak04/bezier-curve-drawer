@@ -102,9 +102,8 @@ var Chart = (function () {
     Chart.prototype.addPoint = function (x, y) {
         this.points.push(new Point(x, y));
     };
-    Chart.prototype.reset = function () {
+    Chart.prototype.clearCanvas = function () {
         this.ctx.reset();
-        this.points = [];
     };
     Chart.prototype.drawCurve = function (points) {
         var _this = this;
@@ -178,16 +177,20 @@ drawingPointsCheckbox.addEventListener('change', function (e) {
     chart.setDrawingPointsEnabled(target.checked);
 });
 var curveDegreeInput = document.getElementById('curve-degree');
-curveDegreeInput.addEventListener('change', function (e) {
-    var target = e.target;
-    chart.setDegree(parseInt(target.value));
+var saveCurveDegreeButton = document.getElementById('save-degree');
+saveCurveDegreeButton.addEventListener('click', function () {
+    chart.setDegree(parseInt(curveDegreeInput.value));
 });
 var drawButton = document.getElementById('draw-button');
-drawButton.addEventListener('click', function (e) {
+drawButton.addEventListener('click', function () {
     chart.repaint();
 });
-var resetButton = document.getElementById('reset-button');
-resetButton.addEventListener('click', function (e) {
-    chart.reset();
+var resetPointsButton = document.getElementById('reset-points-button');
+resetPointsButton.addEventListener('click', function () {
+    chart.setPoints([]);
+});
+var clearCanvasButton = document.getElementById('clear-canvas-button');
+clearCanvasButton.addEventListener('click', function () {
+    chart.clearCanvas();
 });
 //# sourceMappingURL=app.js.map

@@ -54,6 +54,13 @@ class Chart {
 	}
 
 	/**
+	 * Replace all existing points with new array.
+	 */
+	setPoints(points: Point[]) {
+		this.points = points;
+	}
+
+	/**
 	 * Appends a new point to the points array
 	 * @param x horizontal position of the point (from left)
 	 * @param y vertical position of the point (from top)
@@ -176,7 +183,7 @@ const registerMouseEvents = () => {
 
 // Start app
 const chart = new Chart('canvas');
-points.forEach((p) => chart.addPoint(p.x, p.y));
+chart.setPoints(points)
 chart.repaint();
 
 registerMouseEvents();

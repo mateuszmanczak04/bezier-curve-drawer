@@ -28,6 +28,9 @@ var Chart = (function () {
     Chart.prototype.setDrawingPrecision = function (precision) {
         this.drawingPrecision = precision;
     };
+    Chart.prototype.setPoints = function (points) {
+        this.points = points;
+    };
     Chart.prototype.addPoint = function (x, y) {
         this.points.push(new Point(x, y));
     };
@@ -115,7 +118,7 @@ var registerMouseEvents = function () {
     });
 };
 var chart = new Chart('canvas');
-points.forEach(function (p) { return chart.addPoint(p.x, p.y); });
+chart.setPoints(points);
 chart.repaint();
 registerMouseEvents();
 //# sourceMappingURL=app.js.map

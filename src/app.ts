@@ -8,19 +8,19 @@ class Point {
 }
 
 class Chart {
-	declare canvas: HTMLCanvasElement;
-	declare ctx: CanvasRenderingContext2D;
-	declare points: Point[];
-	declare drawingPrecision: number;
-	declare width: number;
-	declare height: number;
-	declare pointRadius: number;
-	declare lineWidth: number;
-	declare helperLineWidth: number;
-	declare lineColor: string;
-	declare helperLineColor: string;
-	declare canvasBackgroundColor: string;
-	declare pointColor: string;
+	private canvas: HTMLCanvasElement;
+	private ctx: CanvasRenderingContext2D;
+	private points: Point[];
+	private drawingPrecision: number;
+	private width: number;
+	private height: number;
+	private pointRadius: number;
+	private lineWidth: number;
+	private helperLineWidth: number;
+	private lineColor: string;
+	private helperLineColor: string;
+	private canvasBackgroundColor: string;
+	private pointColor: string;
 
 	/**
 	 * @param canvasId id of the canvas in DOM
